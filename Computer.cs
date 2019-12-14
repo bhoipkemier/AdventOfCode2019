@@ -1,72 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-namespace AdventOfCode2019.DayCodeBase
+namespace AdventOfCode2019
 {
-	public class Day9: DayCodeBase
+
+	public interface IInputOutputStream<T>
 	{
-		public override string Problem1()
-		{
-			var codes = LoadProgram(0);
-			var inputStream = new InputOutputStream<long>();
-			inputStream.Write(1);
-			var outputStream = new InputOutputStream<long>();
-			var result = RunProgram(codes, inputStream, outputStream);
-			return string.Join(", ", outputStream.GetQueue());
-		}
-		public override string Problem2()
-		{
-			var codes = LoadProgram(0);
-			var inputStream = new InputOutputStream<long>();
-			inputStream.Write(2);
-			var outputStream = new InputOutputStream<long>();
-			var result = RunProgram(codes, inputStream, outputStream);
-			return string.Join(", ", outputStream.GetQueue());
-		}
+		void Write(T obj);
+		Task<T> Get();
+	}
 
-		private Dictionary<long, long> LoadProgram(int file)
-		{
-			var data = GetData(file, ",");
-			var toReturn = new Dictionary<long, long>();
-			for (var l = 0L; l < data.Length; ++l)
-			{
-				toReturn[l] = long.Parse(data[(int) l]);
-			}
-			return toReturn;
-		}
-
-		private class InputOutputStream<T>
-		{
-			private int indx = -1;
-			private int curRead = 0;
-			private T[] _queue = new T[1000];
-			
-			public void Write(T obj)
-			{
-				_queue[++indx] = obj;
-			}
-
-			public async Task<T> Get()
-			{
-				while (indx < curRead)
-				{
-					await Task.Delay(5);
-				}
-
-				return _queue[curRead++];
-			}
-
-			public List<T> GetQueue()
-			{
-				return _queue.Skip(curRead).Take(indx + 1).ToList();
-			}
-		}
-
-
-
-		private async Task<int> RunProgram(Dictionary<long, long> codes, InputOutputStream<long> input, InputOutputStream<long> output)
+	public class Computer
+	{
+		public async Task<int> RunProgram(Dictionary<long, long> codes, IInputOutputStream<long> input, IInputOutputStream<long> output)
 		{
 			var instructionSize = 4L;
 			var relativeBase = 0L;
